@@ -1,0 +1,12 @@
+version: "3"
+
+services:
+  dokuwiki:
+    image: php:7.1-cli-alpine3.7
+    container_name: dokuwiki
+    ports:
+      - "8081:8081"
+    command: 'php -S "0.0.0.0:8081" -t /var/www/html'
+    volumes:
+      - ./dokuwiki/:/var/www/html
+
