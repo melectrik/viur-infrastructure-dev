@@ -1,0 +1,36 @@
+version: "3"
+
+services:
+  datastore:
+    image: singularities/datastore-emulator
+    container_name: datastore
+    environment:
+      - DATASTORE_PROJECT_ID=happydeal-viur
+      - DATASTORE_LISTEN_ADDRESS=0.0.0.0:8084
+    ports:
+      - "8084:8084"
+    volumes:
+      - ./data-volume/datastore:/opt/data
+      - ./data-volume/datastore:/root/.config/gcloud/emulators/datastore
+  happydeal:
+    image: google/cloud-sdk:latest
+    container_name: happydeal
+    command: 'dev_appserver.py --host=0.0.0.0 --enable_console --admin_host=0.0.0.0 --api_port=7000 --support_datastore_emulator=false --storage_path=/opt/data /apps/app.yaml'
+    depends_on:
+      - datastore
+    environment:
+      - DATASTORE_PROJECT_ID=happydeal-viur
+      - DATASTORE_DATASET=happydeal-viur
+      - DATASTORE_EMULATOR_HOST_PATH=0.0.0.0:8084/datastore
+      - DATASTORE_EMULATOR_HOST=0.0.0.0:8084
+      - DATASTORE_HOST=http://0.0.0.0:8084
+      - DATASTORE_LISTEN_ADDRESS=0.0.0.0:8084
+      - GOOGLE_APPLICATION_CREDENTIALS=/certs/happydeal-viur-4b6ad2dcfd8f.json
+    ports:
+      - "8080:8080"
+      - "8000:8000"
+      - "7000:7000"
+    volumes:
+      - ./viur_projects/learningbydoing/deploy:/apps
+      - ./data-volume/certs:/certs
+      - ./data-volume/datastore:/opt/data
